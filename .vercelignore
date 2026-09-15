@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.production.example
+node_modules
+.next
+test-results
+playwright-report
+coverage
+*.log
+*.err.log
+start-server-*.log
+start-server-*.err.log

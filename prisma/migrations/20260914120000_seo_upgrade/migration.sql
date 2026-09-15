@@ -1,0 +1,25 @@
+ALTER TABLE "FAQ" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE "Service"
+  ADD COLUMN "canonicalPath" TEXT,
+  ADD COLUMN "ogTitle" TEXT,
+  ADD COLUMN "ogDescription" TEXT,
+  ADD COLUMN "body" TEXT,
+  ADD COLUMN "ctaCopy" TEXT,
+  ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE "LocationPage"
+  ADD COLUMN "canonicalPath" TEXT,
+  ADD COLUMN "ogTitle" TEXT,
+  ADD COLUMN "ogDescription" TEXT,
+  ADD COLUMN "localIntro" TEXT,
+  ADD COLUMN "commonPestIssues" TEXT[] DEFAULT ARRAY[]::TEXT[],
+  ADD COLUMN "residentialNotes" TEXT,
+  ADD COLUMN "commercialNotes" TEXT,
+  ADD COLUMN "ctaCopy" TEXT,
+  ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE "ContentPage"
+  ADD COLUMN "canonicalPath" TEXT,
+  ADD COLUMN "ogTitle" TEXT,
+  ADD COLUMN "ogDescription" TEXT;

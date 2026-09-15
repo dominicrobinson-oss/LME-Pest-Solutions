@@ -1,0 +1,23 @@
+# LME Go-Live Checklist
+
+- Production `.env` values match `.env.production.example`.
+- `npm run launch:verify-env` passes under Node 22 with production secrets loaded.
+- Supabase PostgreSQL runtime URL and direct migration URL have both been tested.
+- Supabase Storage S3 credentials upload a private test document successfully.
+- Titan/GoDaddy SMTP sends password reset, email verification and invoice email tests successfully.
+- Real logo, imagery, business address, email, bank details and legal copy are installed.
+- Reviews, stats, insurance and accreditation claims are verified or hidden.
+- Public quote form creates a lead.
+- Password reset and email verification emails are delivered.
+- Customer can view an invoice and request a bank-transfer reference.
+- Admin can mark a pending bank transfer as received.
+- Staff/admin 2FA can be enabled and an emailed security code can be used to log in.
+- Admin drag-assisted scheduling and bulk contract visit/invoice generation have been smoke-tested.
+- Technician can complete a job, draw signatures and upload photos.
+- Technician treatment form draft autosave has been checked on a mobile-sized viewport.
+- Customer can open only their own protected documents.
+- Technician cannot open unassigned jobs or finance data.
+- `npm audit` findings are reviewed and accepted or remediated.
+- Final commands pass: validate, migrate, typecheck, lint, tests, integration tests, E2E guard, browser E2E, build and audit.
+- Backup/restore drill has been tested in a non-production environment.
+- Manual desktop, tablet and mobile QA has been signed off.
