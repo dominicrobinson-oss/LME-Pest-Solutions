@@ -25,7 +25,7 @@ export default async function ReviewsPage() {
       <div className="container-lme grid gap-5 py-14 md:grid-cols-2">
         {reviews.length ? reviews.map((review) => (
           <article className="card p-5" key={review.id}>
-            <p className="text-sm font-black text-[var(--primary-gold)]">{review.source || "Verified review"}</p>
+            <p className="text-sm font-black text-[var(--primary-green)]">{review.source || "Verified review"}</p>
             <h2 className="mt-2 text-xl font-black">{review.customerName}</h2>
             <p className="mt-1 text-sm text-slate-500">{review.location || "Location hidden"} · {review.rating}/5</p>
             <p className="mt-4 text-slate-700">{review.content}</p>

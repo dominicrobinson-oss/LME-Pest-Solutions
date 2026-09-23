@@ -11,17 +11,33 @@ const prisma = new PrismaClient({
 const services = [
   "Rat Control",
   "Mouse Control",
-  "Wasp Nest Removal",
-  "Bed Bug Treatment",
-  "Cockroach Control",
-  "Ant Control",
-  "Flea Treatment",
-  "Bird Control",
   "Squirrel Control",
-  "Moth Control",
+  "Cockroach Control",
+  "Flea Treatment",
+  "Bed Bug Treatment",
   "Beetle Control",
-  "Commercial Pest Control",
-  "Emergency Pest Control",
+  "Silverfish Control",
+  "Ant Control",
+  "Moth Control",
+  "Spider Control",
+  "Wasp Nest Removal",
+  "Bird Control",
+  "Solar Panel Bird Proofing",
+  "Bird Spiking",
+  "Rifle Work",
+  "Gutter Removal & Install",
+  "Gutter Cleaning",
+  "Powerwashing",
+  "Window Cleaning",
+  "Garden Maintenance",
+  "Hygiene Clean / Steam Treatment",
+  "Feces Removal",
+  "Environmental Cleans",
+  "Guano Removal",
+  "Masonry Restoration",
+  "Fence Staining",
+  "Cement Work",
+  "Brick Cleaning",
 ];
 
 const locations = [
@@ -76,7 +92,7 @@ async function main() {
   const adminPassword = process.env.ADMIN_SEED_PASSWORD || "ChangeMe123!";
   const passwordHash = await bcrypt.hash(adminPassword, 12);
 
-  const adminUser = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: adminEmail },
     update: { passwordHash, role: "SUPER_ADMIN", status: "ACTIVE" },
     create: { email: adminEmail, name: "LME Admin", passwordHash, role: "SUPER_ADMIN" },
@@ -88,20 +104,23 @@ async function main() {
     create: { email: "owner@lme.local", name: "LME Owner Review", passwordHash, role: "SUPER_ADMIN", emailVerified: new Date() },
   });
 
-  // Customer records below are staff/CRM data only, not login accounts.
-  // No passwordHash is set for them: admin controls the website, so there is no
-  // customer login anywhere in the app.
+  const technician = await prisma.user.upsert({
+    where: { email: "technician@lme.local" },
+    update: { passwordHash, role: "TECHNICIAN", status: "ACTIVE" },
+    create: { email: "technician@lme.local", name: "Sample Technician", passwordHash, role: "TECHNICIAN" },
+  });
+
   const customerUser = await prisma.user.upsert({
     where: { email: "customer@lme.local" },
-    update: { role: "CUSTOMER", status: "ACTIVE", passwordHash: null },
-    create: { email: "customer@lme.local", name: "Sample Customer", role: "CUSTOMER" },
+    update: { passwordHash, role: "CUSTOMER", status: "ACTIVE", emailVerified: new Date() },
+    create: { email: "customer@lme.local", name: "Sample Customer", passwordHash, role: "CUSTOMER", emailVerified: new Date() },
   });
 
   await prisma.staffProfile.upsert({
-    where: { userId: adminUser.id },
+    where: { userId: technician.id },
     update: { skills: ["Rodents", "Wasps", "Inspections"], coverageAreas: ["Manchester", "Salford"] },
     create: {
-      userId: adminUser.id,
+      userId: technician.id,
       phone: "07301 113 276",
       skills: ["Rodents", "Wasps", "Inspections"],
       qualifications: [],
@@ -130,6 +149,11 @@ async function main() {
   }
 
   for (const name of locations) {
+    await prisma.serviceArea.upsert({
+      where: { slug: slugify(name) },
+      update: {},
+      create: { name, slug: slugify(name), region: "North West England", active: true },
+    });
     await prisma.locationPage.upsert({
       where: { slug: slugify(name) },
       update: {},
@@ -190,9 +214,10 @@ async function main() {
 
   const customer = await prisma.customer.upsert({
     where: { customerNumber: "LME-CUS-2026-0001" },
-    update: {},
+    update: { userId: customerUser.id },
     create: {
       customerNumber: "LME-CUS-2026-0001",
+      userId: customerUser.id,
       name: "Sample Customer",
       email: "customer@example.com",
       phone: "07301 113 276",
@@ -311,14 +336,14 @@ async function main() {
       status: "SCHEDULED",
       scheduledStart,
       scheduledEnd,
-      assignments: { create: [{ userId: adminUser.id }] },
+      assignments: { create: [{ userId: technician.id }] },
     },
   });
 
   await prisma.jobAssignment.upsert({
-    where: { jobId_userId: { jobId: job.id, userId: adminUser.id } },
+    where: { jobId_userId: { jobId: job.id, userId: technician.id } },
     update: {},
-    create: { jobId: job.id, userId: adminUser.id },
+    create: { jobId: job.id, userId: technician.id },
   });
 
   await prisma.invoice.upsert({

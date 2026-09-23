@@ -11,7 +11,7 @@ Phase 1 and the first usable slice of phases 2-9 are implemented:
 - Auth.js credentials foundation with bcrypt password hashing, session expiry and login audit events.
 - Public website routes for home, services, service details, areas, location details, about, reviews, FAQ, quote, contact, login, policies, sitemap, thank-you and 404.
 - Quote enquiry form with server-side Zod validation, persistent Lead creation, ConsentRecord, Notification and AuditLog.
-- Admin portal with noindex SEO metadata. There is no customer self-service portal; customers are managed entirely through the admin CRM (no separate customer login).
+- Admin, customer and technician portal shells with noindex SEO metadata.
 - XML sitemap, robots.txt and structured service schema.
 - Development seed script with clearly marked local credentials.
 - Launch essentials: production env template, bank-transfer payment references, Titan/GoDaddy SMTP email provider path, local/Supabase S3 storage provider modes, upload validation and database-backed rate limiting.
@@ -58,9 +58,9 @@ npm run dev
 The seed script creates:
 
 - Admin: `admin@lme.local`
+- Technician: `technician@lme.local`
+- Customer: `customer@lme.local`
 - Password: `ChangeMe123!` unless overridden with `ADMIN_SEED_PASSWORD`
-
-The seed script also creates a `customer@lme.local` record with no password (there is no customer login) — it exists only as a non-privileged account for automated tests confirming non-staff roles cannot reach the admin area.
 
 These are development credentials only. Do not use them in production.
 
@@ -91,7 +91,7 @@ Configure these before production use:
 - Set a long `NEXTAUTH_SECRET`
 - Use Node 22 in production
 - Enforce HTTPS in production
-- Restrict admin pages server-side before launch
+- Restrict admin, customer and technician pages server-side before launch
 - Keep database-backed app rate limiting enabled and add edge rate limiting where available
 - Use signed document URLs
 - Validate file type, size and ownership on upload
@@ -103,7 +103,7 @@ Configure these before production use:
 
 - Verify canonical production `PUBLIC_SITE_URL`
 - Replace placeholder local copy with useful unique content
-- Keep admin/API routes noindexed
+- Keep admin/customer/technician/API routes noindexed
 - Publish only verified reviews/statistics/accreditations
 - Add real image assets with descriptive alt text
 - Submit `/sitemap.xml` after deployment

@@ -7,12 +7,12 @@ import { prisma } from "@/lib/db";
 import { emailProvider } from "@/lib/providers";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-const staff2faRoles = new Set(["SUPER_ADMIN", "ADMIN", "OFFICE_MANAGER", "ACCOUNTANT", "SALES"]);
+const staff2faRoles = new Set(["SUPER_ADMIN", "ADMIN", "OFFICE_MANAGER", "ACCOUNTANT", "SALES", "TECHNICIAN"]);
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt", maxAge: 60 * 60 * 8 },
   pages: {
-    signIn: "/admin",
+    signIn: "/customer-login",
   },
   providers: [
     CredentialsProvider({
@@ -78,7 +78,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub || "";
-        session.user.role = String(token.role || "");
+        session.user.role = String(token.role || "CUSTOMER");
       }
       return session;
     },

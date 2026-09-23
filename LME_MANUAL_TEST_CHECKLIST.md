@@ -22,23 +22,29 @@ Use this after production credentials are configured and before publishing the l
 
 - [ ] Admin can log in with a non-seed production account.
 - [ ] Public lead appears in `/admin/leads`.
-- [ ] Lead converts to customer/property.
-- [ ] Quote can be created and sent; admin records the customer's accept/decline decision.
+- [ ] Lead converts to customer/property and creates a customer portal invite.
+- [ ] Quote can be created, sent and opened in the customer portal.
 - [ ] Accepted quote converts to a job.
 - [ ] Job can be assigned, scheduled and conflict warnings appear when relevant.
 - [ ] Completed job can generate treatment records, documents and an invoice.
 
-## Document Access
+## Customer Portal
 
-- [ ] Admin-generated quote/invoice/treatment PDFs require an admin login to download.
-- [ ] There is no customer self-service portal; all customer-facing communication and document sharing goes through admin/staff.
+- [ ] Customer can set password from invite/reset email.
+- [ ] Customer can accept/decline their own quote.
+- [ ] Customer can request a bank-transfer payment reference.
+- [ ] Customer can request appointment rescheduling and send a portal message.
+- [ ] Customer can download their own protected documents.
+- [ ] Customer cannot open another customer quote, invoice, job or document URL.
 
-## Job Completion (Admin)
+## Technician Portal
 
-- [ ] Admin can update job status, including no-access/cancel reasons.
-- [ ] Admin can complete treatment records and capture signatures.
-- [ ] Admin can upload a valid photo and is blocked from invalid/oversized files.
-- [ ] Admin can record materials, job expenses and follow-up dates.
+- [ ] Technician sees assigned jobs only.
+- [ ] Technician cannot access admin finance or unassigned jobs.
+- [ ] Technician can update job status, including no-access/cancel reasons.
+- [ ] Technician can complete treatment records and capture signatures.
+- [ ] Technician can upload a valid photo and is blocked from invalid/oversized files.
+- [ ] Technician can record materials, job expenses and follow-up dates.
 
 ## Finance And Reminders
 

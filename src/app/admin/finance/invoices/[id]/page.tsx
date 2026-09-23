@@ -22,9 +22,6 @@ export default async function AdminInvoiceDetailPage({ params }: { params: Promi
         <MetricCard label="Paid" value={`£${Number(invoice.amountPaid).toFixed(2)}`} />
         <MetricCard label="Outstanding" value={`£${Number(invoice.amountOutstanding).toFixed(2)}`} />
       </div>
-      <div className="mt-4">
-        <a className="btn-secondary" href={`/api/reports/invoice/${invoice.id}`} target="_blank" rel="noopener noreferrer">Download PDF</a>
-      </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_360px]">
         <section className="card p-5">
           <h3 className="text-xl font-black">Line items and payments</h3>

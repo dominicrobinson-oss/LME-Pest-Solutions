@@ -2,10 +2,8 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminForm, DataTable, Td } from "@/components/data-table";
 import { createQuote } from "@/app/admin/actions";
-import { QuoteStatus } from "@/generated/prisma/client";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
-import { matchesEnum } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +16,7 @@ export default async function QuotesAdminPage({ searchParams }: { searchParams?:
     prisma.quote.findMany({
       where: {
         ...(q ? { OR: [{ quoteNumber: { contains: q, mode: "insensitive" } }, { title: { contains: q, mode: "insensitive" } }, { customer: { name: { contains: q, mode: "insensitive" } } }] } : {}),
-        ...(matchesEnum(status, QuoteStatus) ? { status: matchesEnum(status, QuoteStatus) } : {}),
+        ...(status ? { status: status as never } : {}),
       },
       include: { customer: true, property: true, items: true },
       orderBy: { createdAt: "desc" },
@@ -41,9 +39,9 @@ export default async function QuotesAdminPage({ searchParams }: { searchParams?:
           <DataTable headers={["Quote", "Customer", "Status", "Total", "Actions"]}>
             {quotes.map((quote) => (
               <tr key={quote.id}>
-                <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/quotes/${quote.id}`}>{quote.quoteNumber}</Link><br />{quote.title}</Td>
+                <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/quotes/${quote.id}`}>{quote.quoteNumber}</Link><br />{quote.title}</Td>
                 <Td>{quote.customer?.name || "No customer"}<br /><span className="text-slate-500">{quote.property?.postcode}</span></Td>
-                <Td><span className="status-pill bg-amber-50 text-amber-800">{quote.status}</span></Td>
+                <Td><span className="status-pill bg-lime-50 text-lime-800">{quote.status}</span></Td>
                 <Td>£{Number(quote.total).toFixed(2)}</Td>
                 <Td><Link className="btn-primary" href={`/admin/quotes/${quote.id}`}>Open</Link></Td>
               </tr>

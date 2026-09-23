@@ -45,7 +45,7 @@ export default async function AdvicePage() {
           <Link className="card p-5 transition hover:-translate-y-0.5 hover:shadow-lg" href={`/advice/${article.slug}`} key={article.slug}>
             <h2 className="text-xl font-black">{article.title}</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">{article.description}</p>
-            <p className="mt-5 text-sm font-black text-[var(--primary-gold)]">Read guide</p>
+            <p className="mt-5 text-sm font-black text-[var(--primary-green)]">Read guide</p>
           </Link>
         ))}
       </section>

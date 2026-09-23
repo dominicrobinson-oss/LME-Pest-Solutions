@@ -14,7 +14,7 @@ export function MobileContactBar() {
         <MessageCircle size={18} />
         WhatsApp
       </a>
-      <Link className="grid min-h-14 place-items-center bg-[var(--primary-gold)] text-white" href="/get-a-quote">
+      <Link className="grid min-h-14 place-items-center bg-[var(--primary-green)] text-white" href="/get-a-quote">
         Quote
       </Link>
     </div>

@@ -24,7 +24,7 @@ export default async function FaqPage() {
         {faqs.map((faq) => (
           <details className="card p-5" key={faq.id}>
             <summary className="cursor-pointer font-black">{faq.question}</summary>
-            <p className="mt-2 text-xs font-black uppercase tracking-[0.12em] text-[var(--primary-gold)]">{faq.category}</p>
+            <p className="mt-2 text-xs font-black uppercase tracking-[0.12em] text-[var(--primary-green)]">{faq.category}</p>
             <p className="mt-3 text-slate-600">{faq.answer}</p>
           </details>
         ))}

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../src/generated/prisma/client";
 
@@ -16,11 +17,11 @@ test.afterAll(async () => {
 async function login(page: Page, email: string, password = "ChangeMe123!") {
   await prisma.businessSetting.deleteMany({ where: { key: `rate-limit:login:${email.toLowerCase()}` } });
   await page.context().clearCookies();
-  await page.goto("/admin");
+  await page.goto("/customer-login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page).toHaveURL(/\/customer(?:[/?#]|$)/);
 }
 
 function dateTimeLocal(offsetDays: number, hour: number) {
@@ -31,7 +32,7 @@ function dateTimeLocal(offsetDays: number, hour: number) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`;
 }
 
-test("full admin-only workflow from public enquiry to paid invoice and document access", async ({ page }) => {
+test("full bank-transfer workflow from public enquiry to paid invoice and document access", async ({ page }) => {
   test.setTimeout(180_000);
   const suffix = Date.now().toString(36);
   const customerEmail = `full-workflow-${suffix}@example.com`;
@@ -63,7 +64,12 @@ test("full admin-only workflow from public enquiry to paid invoice and document 
   await expect(page).toHaveURL(/\/admin\/customers\//);
   await expect(page.getByRole("heading", { name: new RegExp(customerName, "i") })).toBeVisible();
 
-  const customer = await prisma.customer.findFirstOrThrow({ where: { email: customerEmail }, include: { properties: true } });
+  const customer = await prisma.customer.findFirstOrThrow({ where: { email: customerEmail }, include: { properties: true, user: true } });
+  expect(customer.userId).toBeTruthy();
+  await prisma.user.update({
+    where: { id: customer.userId! },
+    data: { passwordHash: await bcrypt.hash("ChangeMe123!", 12), emailVerified: new Date() },
+  });
 
   await page.getByPlaceholder("Pest type").fill("Rat Control");
   await page.getByPlaceholder("Quote title").fill("Rat treatment workflow quote");
@@ -75,31 +81,58 @@ test("full admin-only workflow from public enquiry to paid invoice and document 
 
   const quote = await prisma.quote.findFirstOrThrow({ where: { customerId: customer.id, title: "Rat treatment workflow quote" }, orderBy: { createdAt: "desc" } });
   await page.getByRole("button", { name: "Send quote" }).click();
-  await page.getByRole("button", { name: "Mark accepted" }).click();
-  await expect(page.getByText("Status: ACCEPTED")).toBeVisible();
 
+  await login(page, customerEmail);
+  await page.goto(`/customer/quotes/${quote.id}`);
+  await page.getByPlaceholder("Comment").fill("Approved from browser workflow.");
+  await page.getByRole("button", { name: "Accept quote" }).click();
+  await expect(page.getByText(/ACCEPTED/i)).toBeVisible();
+
+  await login(page, "admin@lme.local");
+  await page.goto(`/admin/quotes/${quote.id}`);
   await page.getByRole("button", { name: "Convert to job" }).click();
   await expect(page.getByRole("heading", { name: /LME-JOB-/ })).toBeVisible();
 
   const job = await prisma.job.findFirstOrThrow({ where: { quoteId: quote.id }, orderBy: { createdAt: "desc" } });
-  const staffMember = await prisma.user.findFirstOrThrow({ where: { email: "admin@lme.local" } });
-  await prisma.jobAssignment.upsert({ where: { jobId_userId: { jobId: job.id, userId: staffMember.id } }, update: {}, create: { jobId: job.id, userId: staffMember.id } });
+  const technician = await prisma.user.findFirstOrThrow({ where: { email: "technician@lme.local" } });
+  await prisma.jobAssignment.upsert({ where: { jobId_userId: { jobId: job.id, userId: technician.id } }, update: {}, create: { jobId: job.id, userId: technician.id } });
 
   await page.locator('input[name="scheduledStart"]').fill(dateTimeLocal(1, 9));
   await page.locator('input[name="scheduledEnd"]').fill(dateTimeLocal(1, 10));
   await page.getByRole("button", { name: "Update schedule" }).click();
 
-  await page.getByRole("button", { name: "COMPLETED", exact: true }).click();
-  await expect(page.getByText(/COMPLETED/i).first()).toBeVisible();
+  await login(page, "technician@lme.local");
+  await page.goto(`/technician/jobs/${job.id}`);
+  await page.getByPlaceholder("Pest found").fill("Rats");
+  await page.getByPlaceholder("Areas inspected").fill("Kitchen, loft and exterior perimeter");
+  await page.getByPlaceholder("Treatment method").fill("Inspection, proofing advice and bait station placement");
+  await page.getByPlaceholder("Product used").fill("Locked bait station");
+  await page.getByPlaceholder("Quantity").first().fill("2");
+  await page.getByPlaceholder("Safety precautions").fill("Keep pets and children away from treatment points.");
+  await page.getByPlaceholder("Technician notes").fill("Treatment completed from browser workflow.");
+  await page.getByLabel(/Customer acknowledged/i).check();
+  await page.getByRole("button", { name: "Complete treatment" }).click();
+  await expect(page.getByText(/Treatment/i).last()).toBeVisible();
 
+  await login(page, "admin@lme.local");
+  await page.goto(`/admin/jobs/${job.id}`);
   await page.getByRole("button", { name: "Create invoice" }).click();
   await expect(page).toHaveURL(/\/admin\/finance/);
 
   const invoice = await prisma.invoice.findFirstOrThrow({ where: { jobId: job.id }, orderBy: { createdAt: "desc" } });
+  await login(page, customerEmail);
+  await page.goto(`/customer/invoices/${invoice.id}`);
+  await page.getByRole("button", { name: /Request bank transfer reference/i }).click();
+  await expect(page.getByText(/Bank transfer requested/i)).toBeVisible();
+
+  const payment = await prisma.payment.findFirstOrThrow({ where: { invoiceId: invoice.id, status: "PENDING" }, orderBy: { paymentDate: "desc" } });
+  await login(page, "admin@lme.local");
   await page.goto("/admin/finance");
-  const invoiceRow = page.getByRole("row").filter({ hasText: invoice.invoiceNumber });
-  await invoiceRow.getByPlaceholder("Amount").fill(String(invoice.total));
-  await invoiceRow.getByRole("button", { name: "Record" }).click();
+  const paymentRow = page.getByRole("row").filter({ hasText: payment.paymentReference });
+  await paymentRow.getByPlaceholder("Bank reference").fill(`BANK-${suffix}`);
+  await paymentRow.getByRole("button", { name: "Mark received" }).click();
+  await expect(page.getByText(payment.paymentReference).first()).toBeVisible();
+
   await expect
     .poll(async () => {
       const paidInvoice = await prisma.invoice.findUniqueOrThrow({ where: { id: invoice.id } });
@@ -107,13 +140,34 @@ test("full admin-only workflow from public enquiry to paid invoice and document 
     })
     .toBe("PAID");
 
-  const document = await prisma.document.findFirst({ where: { jobId: job.id, customerId: customer.id }, orderBy: { createdAt: "desc" } });
-  if (document) {
-    const download = await page.request.get(`/api/documents/${document.id}`);
-    expect(download.status()).toBeLessThan(400);
-  }
+  const document = await prisma.document.findFirstOrThrow({ where: { jobId: job.id, customerId: customer.id }, orderBy: { createdAt: "desc" } });
+  await login(page, customerEmail);
+  await page.goto(`/customer/documents/${document.id}`);
+  await expect(page.getByRole("heading", { name: document.title })).toBeVisible();
+  const download = await page.request.get(`/api/documents/${document.id}`);
+  expect(download.status()).toBeLessThan(400);
 
-  await page.context().clearCookies();
-  const anonymousAttempt = await page.request.get(`/api/documents/${document?.id ?? "missing"}`, { maxRedirects: 0 });
-  expect(anonymousAttempt.status()).toBeGreaterThanOrEqual(300);
+  const otherEmail = `other-${suffix}@example.com`;
+  const otherUser = await prisma.user.create({
+    data: {
+      email: otherEmail,
+      name: "Other Customer",
+      role: "CUSTOMER",
+      emailVerified: new Date(),
+      passwordHash: await bcrypt.hash("ChangeMe123!", 12),
+    },
+  });
+  await prisma.customer.create({
+    data: {
+      customerNumber: `TEST-CUST-${suffix}`,
+      userId: otherUser.id,
+      name: "Other Customer",
+      email: otherEmail,
+      phone: "07000000000",
+      customerType: "Residential",
+    },
+  });
+  await login(page, otherEmail);
+  await page.goto(`/customer/documents/${document.id}`);
+  await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
 });

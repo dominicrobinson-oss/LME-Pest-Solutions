@@ -4,8 +4,6 @@ Audit date: 2026-07-10
 Repository: `C:\Users\viole\OneDrive\Dokumente\LME`  
 Audit basis: original master specification plus direct inspection of routes, components, Prisma schema, API handlers, package scripts and command outputs.
 
-**Note (2026-09-21):** This audit is a historical snapshot and is preserved as-is below. It significantly understates current completion (see `LME_FINAL_ACCEPTANCE_REPORT.md` for a later, more accurate pass) and, as of this note, is also out of date on several points: the technician role/portal (a role/permission path only — no `/technician` route was ever actually built, despite rows below implying one existed) has been removed entirely per business decision, and the admin `/admin/calendar` page has also been removed. Job scheduling, assignment and completion are now handled through the admin jobs list and job detail pages, with staff-assignment dropdowns using the general staff role set instead of a technician role. Separately, no customer self-service portal (`/customer/**`) was ever built despite being extensively described elsewhere as a working feature — that was confirmed as fabricated/aspirational documentation, not a real implementation that regressed, and per business decision no such portal will be built. Rows below referencing `/technician`, `/admin/calendar`, or a customer portal describe a state that never existed or no longer applies.
-
 ## Status Legend
 
 - COMPLETE: implemented, persistent where required, wired to route/API, and verified by command or code inspection.

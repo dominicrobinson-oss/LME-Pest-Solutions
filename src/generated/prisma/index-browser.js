@@ -147,6 +147,28 @@ exports.Prisma.NumberSequenceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AccountScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  refresh_token: 'refresh_token',
+  access_token: 'access_token',
+  expires_at: 'expires_at',
+  token_type: 'token_type',
+  scope: 'scope',
+  id_token: 'id_token',
+  session_state: 'session_state'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  sessionToken: 'sessionToken',
+  userId: 'userId',
+  expires: 'expires'
+};
+
 exports.Prisma.VerificationTokenScalarFieldEnum = {
   identifier: 'identifier',
   token: 'token',
@@ -156,6 +178,7 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
 exports.Prisma.CustomerScalarFieldEnum = {
   id: 'id',
   customerNumber: 'customerNumber',
+  userId: 'userId',
   name: 'name',
   companyName: 'companyName',
   email: 'email',
@@ -463,9 +486,6 @@ exports.Prisma.CommercialContractScalarFieldEnum = {
   includedServices: 'includedServices',
   excludedServices: 'excludedServices',
   accountManagerId: 'accountManagerId',
-  visitIntervalWeeks: 'visitIntervalWeeks',
-  visitDurationMinutes: 'visitDurationMinutes',
-  invoiceIntervalMonths: 'invoiceIntervalMonths',
   createdAt: 'createdAt'
 };
 
@@ -485,7 +505,6 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   propertyId: 'propertyId',
   quoteId: 'quoteId',
   jobId: 'jobId',
-  contractId: 'contractId',
   issueDate: 'issueDate',
   dueDate: 'dueDate',
   subtotal: 'subtotal',
@@ -547,6 +566,7 @@ exports.Prisma.ExpenseScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   jobId: 'jobId',
   vehicleId: 'vehicleId',
+  employeeId: 'employeeId',
   receiptUrl: 'receiptUrl',
   reimbursable: 'reimbursable',
   approved: 'approved',
@@ -579,6 +599,23 @@ exports.Prisma.StaffProfileScalarFieldEnum = {
   active: 'active'
 };
 
+exports.Prisma.TechnicianAvailabilityScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  type: 'type',
+  notes: 'notes'
+};
+
+exports.Prisma.TimeEntryScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  notes: 'notes'
+};
+
 exports.Prisma.VehicleScalarFieldEnum = {
   id: 'id',
   registration: 'registration',
@@ -599,6 +636,7 @@ exports.Prisma.EquipmentScalarFieldEnum = {
   id: 'id',
   equipmentName: 'equipmentName',
   serialNumber: 'serialNumber',
+  assignedTechnicianId: 'assignedTechnicianId',
   purchaseDate: 'purchaseDate',
   inspectionDate: 'inspectionDate',
   nextInspection: 'nextInspection',
@@ -679,7 +717,6 @@ exports.Prisma.ServiceScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  category: 'category',
   seoTitle: 'seoTitle',
   metaDescription: 'metaDescription',
   canonicalPath: 'canonicalPath',
@@ -696,6 +733,14 @@ exports.Prisma.ServiceScalarFieldEnum = {
   ctaCopy: 'ctaCopy',
   status: 'status',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ServiceAreaScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  region: 'region',
+  active: 'active'
 };
 
 exports.Prisma.LocationPageScalarFieldEnum = {
@@ -803,9 +848,12 @@ exports.UserRole = exports.$Enums.UserRole = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   OFFICE_MANAGER: 'OFFICE_MANAGER',
+  TECHNICIAN: 'TECHNICIAN',
   ACCOUNTANT: 'ACCOUNTANT',
   CUSTOMER: 'CUSTOMER',
-  SALES: 'SALES'
+  SALES: 'SALES',
+  SUBCONTRACTOR: 'SUBCONTRACTOR',
+  READ_ONLY: 'READ_ONLY'
 };
 
 exports.RecordStatus = exports.$Enums.RecordStatus = {
@@ -882,14 +930,11 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED'
 };
 
-exports.ServiceCategory = exports.$Enums.ServiceCategory = {
-  PEST_CONTROL: 'PEST_CONTROL',
-  HOME_MAINTENANCE: 'HOME_MAINTENANCE'
-};
-
 exports.Prisma.ModelName = {
   User: 'User',
   NumberSequence: 'NumberSequence',
+  Account: 'Account',
+  Session: 'Session',
   VerificationToken: 'VerificationToken',
   Customer: 'Customer',
   CustomerContact: 'CustomerContact',
@@ -918,6 +963,8 @@ exports.Prisma.ModelName = {
   Expense: 'Expense',
   ExpenseCategory: 'ExpenseCategory',
   StaffProfile: 'StaffProfile',
+  TechnicianAvailability: 'TechnicianAvailability',
+  TimeEntry: 'TimeEntry',
   Vehicle: 'Vehicle',
   Equipment: 'Equipment',
   Document: 'Document',
@@ -926,6 +973,7 @@ exports.Prisma.ModelName = {
   Review: 'Review',
   FAQ: 'FAQ',
   Service: 'Service',
+  ServiceArea: 'ServiceArea',
   LocationPage: 'LocationPage',
   ContentPage: 'ContentPage',
   BusinessSetting: 'BusinessSetting',

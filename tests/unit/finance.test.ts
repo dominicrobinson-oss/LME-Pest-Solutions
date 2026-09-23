@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateQuoteTotals, nextInvoiceStatus } from "@/lib/finance";
+import { emailTemplates } from "@/lib/email-templates";
 import { paymentProvider } from "@/lib/providers";
 
 describe("finance helpers", () => {
@@ -22,5 +23,11 @@ describe("finance helpers", () => {
     expect(request.status).toBe("AWAITING_BANK_TRANSFER");
     expect(request.reference).toBe("INV-TEST");
     expect(request.bankDetails.accountName).toBeTruthy();
+  });
+
+  it("renders bank-transfer email copy with the remittance reference", () => {
+    const template = emailTemplates.bankPaymentRequested("INV-001-PAY-001", 120);
+    expect(template.subject).toContain("INV-001-PAY-001");
+    expect(template.text).toContain("INV-001-PAY-001");
   });
 });

@@ -165,3 +165,6 @@ export function brandedPdf(options: PdfOptions) {
   return Buffer.from(pdf);
 }
 
+export function simplePdf(title: string, lines: string[]) {
+  return brandedPdf({ title, reference: title, sections: [{ title: "Details", lines }] });
+}

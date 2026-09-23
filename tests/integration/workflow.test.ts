@@ -10,7 +10,7 @@ describe("workflow coverage contract", () => {
       "quote creation",
       "quote acceptance",
       "quote to job",
-      "treatment record",
+      "technician treatment",
       "job to invoice",
       "bank payment request",
       "payment reconciliation",

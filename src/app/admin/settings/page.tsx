@@ -1,6 +1,6 @@
 import { AdminShell, MetricCard } from "@/components/admin-shell";
 import { AdminForm, DataTable, Td } from "@/components/data-table";
-import { inviteStaff, saveBusinessSetting, updateTwoFactorPreference } from "@/app/admin/actions";
+import { saveBusinessSetting, updateTwoFactorPreference } from "@/app/admin/actions";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
 
@@ -16,11 +16,6 @@ export default async function SettingsAdminPage() {
   const settings = await prisma.businessSetting.findMany({ orderBy: { key: "asc" } });
   const byKey = Object.fromEntries(settings.map((setting) => [setting.key, setting.value]));
   const requiredKeys = ["business.identity", "business.contact", "business.legal", "operations.hours", "finance.vat", "website.claims", "integrations.providers"];
-  const staff = await prisma.user.findMany({
-    where: { OR: [{ role: "SUPER_ADMIN" }, { role: { in: adminRoles } }] },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, email: true, role: true, status: true, passwordHash: true, twoFactorEnabled: true },
-  });
 
   return (
     <AdminShell title="Settings" userName={user.name || user.email}>
@@ -28,39 +23,6 @@ export default async function SettingsAdminPage() {
         <MetricCard label="Settings stored" value={String(settings.length)} />
         <MetricCard label="Verified claims enabled" value={byKey["website.claims"] ? "Configured" : "Hidden"} />
         <MetricCard label="Your 2FA" value={user.twoFactorEnabled ? "Enabled" : "Off"} />
-      </div>
-
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_420px]">
-        <section className="card p-5">
-          <h3 className="text-xl font-black">Staff</h3>
-          <p className="mt-1 text-sm text-slate-600">Admin panel access only. Invited staff get an email with a secure link to set their password.</p>
-          <DataTable headers={["Name", "Email", "Role", "Status", "Account"]}>
-            {staff.map((member) => (
-              <tr key={member.id}>
-                <Td>{member.name || "-"}</Td>
-                <Td>{member.email}</Td>
-                <Td>{member.role}</Td>
-                <Td><span className="status-pill bg-amber-50 text-amber-800">{member.status}</span></Td>
-                <Td>{member.passwordHash ? "Active" : "Invited, awaiting setup"}</Td>
-              </tr>
-            ))}
-          </DataTable>
-        </section>
-
-        <AdminForm title="Invite staff">
-          <form action={inviteStaff} className="grid gap-3">
-            <input className="field" name="name" placeholder="Full name" required />
-            <input className="field" name="email" placeholder="Email address" type="email" required />
-            <select className="field" name="role" defaultValue="OFFICE_MANAGER">
-              <option value="ADMIN">Admin</option>
-              <option value="OFFICE_MANAGER">Office Manager</option>
-              <option value="ACCOUNTANT">Accountant</option>
-              <option value="SALES">Sales</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-            </select>
-            <button className="btn-primary" type="submit">Send invite</button>
-          </form>
-        </AdminForm>
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_420px]">

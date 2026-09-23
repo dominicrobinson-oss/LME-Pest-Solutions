@@ -35,7 +35,7 @@ export default async function CmsAdminPage() {
                 <tr key={page.id}>
                   <Td>{page.slug}</Td>
                   <Td>{page.title}</Td>
-                  <Td><span className="status-pill bg-amber-50 text-amber-800">{page.status}</span></Td>
+                  <Td><span className="status-pill bg-lime-50 text-lime-800">{page.status}</span></Td>
                   <Td>{page.metaTitle}<br /><span className="text-slate-500">{page.metaDescription}</span></Td>
                 </tr>
               ))}
@@ -44,13 +44,12 @@ export default async function CmsAdminPage() {
 
           <section className="card p-5">
             <h3 className="text-xl font-black">Services</h3>
-            <DataTable headers={["Service", "Slug", "Category", "Status", "Intro"]}>
+            <DataTable headers={["Service", "Slug", "Status", "Intro"]}>
               {services.map((service) => (
                 <tr key={service.id}>
                   <Td>{service.name}</Td>
                   <Td>{service.slug}</Td>
-                  <Td>{service.category === "HOME_MAINTENANCE" ? "Home Maintenance" : "Pest Control"}</Td>
-                  <Td><span className="status-pill bg-amber-50 text-amber-800">{service.status}</span></Td>
+                  <Td><span className="status-pill bg-lime-50 text-lime-800">{service.status}</span></Td>
                   <Td>{service.intro}</Td>
                 </tr>
               ))}
@@ -64,7 +63,7 @@ export default async function CmsAdminPage() {
                 <tr key={location.id}>
                   <Td>{location.locationName}<br /><span className="text-slate-500">{location.slug}</span></Td>
                   <Td>{location.countyOrRegion}</Td>
-                  <Td><span className="status-pill bg-amber-50 text-amber-800">{location.status}</span></Td>
+                  <Td><span className="status-pill bg-lime-50 text-lime-800">{location.status}</span></Td>
                   <Td>{location.availableServices.join(", ") || "Not set"}</Td>
                 </tr>
               ))}
@@ -104,10 +103,6 @@ export default async function CmsAdminPage() {
             <form action={saveServiceContent} className="grid gap-3">
               <input className="field" name="name" placeholder="Service name" />
               <input className="field" name="slug" placeholder="service-slug" />
-              <select className="field" name="category" defaultValue="PEST_CONTROL">
-                <option value="PEST_CONTROL">Pest Control</option>
-                <option value="HOME_MAINTENANCE">Home Maintenance</option>
-              </select>
               <input className="field" name="seoTitle" placeholder="SEO title" />
               <textarea className="field" name="metaDescription" placeholder="Meta description" />
               <input className="field" name="canonicalPath" placeholder="Canonical path, e.g. /services/rat-control" />

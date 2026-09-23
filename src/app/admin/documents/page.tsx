@@ -35,7 +35,7 @@ export default async function DocumentsAdminPage() {
                 <Td>{document.category}</Td>
                 <Td>{document.customer?.name || document.job?.jobNumber || "-"}</Td>
                 <Td>{document.expiryDate?.toLocaleDateString("en-GB") || "-"}</Td>
-                <Td><a className="font-bold text-[var(--primary-gold)]" href={`/api/documents/${document.id}`}>Protected link</a></Td>
+                <Td><a className="font-bold text-[var(--primary-green)]" href={`/api/documents/${document.id}`}>Protected link</a></Td>
               </tr>
             ))}
           </DataTable>

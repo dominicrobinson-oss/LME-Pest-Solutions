@@ -29,7 +29,7 @@ export default async function AdminExpenseDetailPage({ params }: { params: Promi
           <tr><Td>Date</Td><Td>{expense.expenseDate.toLocaleDateString("en-GB")}</Td></tr>
           <tr><Td>Job</Td><Td>{expense.job?.jobNumber || "-"}</Td></tr>
           <tr><Td>Vehicle</Td><Td>{expense.vehicle?.registration || "-"}</Td></tr>
-          <tr><Td>Receipt</Td><Td>{expense.receiptUrl ? <a className="font-bold text-[var(--primary-gold)]" href={expense.receiptUrl}>{expense.receiptUrl}</a> : "-"}</Td></tr>
+          <tr><Td>Receipt</Td><Td>{expense.receiptUrl ? <a className="font-bold text-[var(--primary-green)]" href={expense.receiptUrl}>{expense.receiptUrl}</a> : "-"}</Td></tr>
           <tr><Td>Notes</Td><Td>{expense.notes || "-"}</Td></tr>
         </DataTable>
       </section>

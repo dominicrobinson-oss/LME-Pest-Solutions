@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireAnyRole(adminRoles);
   const { id } = await params;
-  const [job, staffMembers] = await Promise.all([
+  const [job, technicians] = await Promise.all([
     prisma.job.findUnique({ where: { id }, include: { customer: true, property: true, quote: true, assignments: { include: { user: true } }, statusHistory: { orderBy: { createdAt: "desc" } }, treatmentRecords: true, invoices: true, documents: true } }),
-    prisma.user.findMany({ where: { role: { in: ["SUPER_ADMIN", "ADMIN", "OFFICE_MANAGER", "SALES"] }, status: "ACTIVE" }, orderBy: { name: "asc" } }),
+    prisma.user.findMany({ where: { role: "TECHNICIAN", status: "ACTIVE" }, orderBy: { name: "asc" } }),
   ]);
   if (!job) notFound();
   return (
@@ -35,11 +35,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           ) : null}
         </section>
         <div className="grid gap-5">
-          <AdminForm title="Assign staff">
+          <AdminForm title="Assign technician">
             <form action={assignJob} className="grid gap-3">
               <input type="hidden" name="jobId" value={job.id} />
               <select className="field" name="userId">
-                {staffMembers.map((staffMember) => <option value={staffMember.id} key={staffMember.id}>{staffMember.name || staffMember.email}</option>)}
+                {technicians.map((tech) => <option value={tech.id} key={tech.id}>{tech.name || tech.email}</option>)}
               </select>
               <button className="btn-primary" type="submit">Assign</button>
             </form>
@@ -49,7 +49,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <input type="hidden" name="jobId" value={job.id} />
               <input className="field" name="scheduledStart" type="datetime-local" />
               <input className="field" name="scheduledEnd" type="datetime-local" />
-              <p className="text-xs text-slate-600">Assigned staff conflicts are logged into the job if detected.</p>
+              <p className="text-xs text-slate-600">Assigned technician conflicts are logged into the job if detected.</p>
               <button className="btn-primary" type="submit">Update schedule</button>
             </form>
           </AdminForm>
@@ -64,7 +64,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
       <section className="mt-5 card p-5">
-        <h3 className="text-xl font-black">Job status controls</h3>
+        <h3 className="text-xl font-black">Technician status controls</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {["CONFIRMED","EN_ROUTE","ARRIVED","IN_PROGRESS","PAUSED","COMPLETED","NO_ACCESS","RESCHEDULED"].map((status) => (
             <form action={updateJobStatus} key={status}>
@@ -79,7 +79,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <h3 className="text-xl font-black">History</h3>
         <DataTable headers={["Type", "Detail", "Date"]}>
           {job.statusHistory.map((item) => <tr key={item.id}><Td>Status</Td><Td>{item.status} {item.note}</Td><Td>{item.createdAt.toLocaleString("en-GB")}</Td></tr>)}
-          {job.treatmentRecords.map((item) => <tr key={item.id}><Td>Treatment</Td><Td>{item.pestIdentified} · {item.infestationSeverity} · <a className="font-bold text-[var(--primary-gold)]" href={`/api/reports/treatment/${item.id}`} target="_blank" rel="noopener noreferrer">Download PDF</a></Td><Td>{item.createdAt.toLocaleString("en-GB")}</Td></tr>)}
+          {job.treatmentRecords.map((item) => <tr key={item.id}><Td>Treatment</Td><Td>{item.pestIdentified} · {item.infestationSeverity}</Td><Td>{item.createdAt.toLocaleString("en-GB")}</Td></tr>)}
           {job.invoices.map((item) => <tr key={item.id}><Td>Invoice</Td><Td>{item.invoiceNumber}</Td><Td>{item.createdAt.toLocaleString("en-GB")}</Td></tr>)}
           {job.documents.map((item) => <tr key={item.id}><Td>Document</Td><Td>{item.title}</Td><Td>{item.createdAt.toLocaleString("en-GB")}</Td></tr>)}
         </DataTable>

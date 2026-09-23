@@ -27,7 +27,7 @@ export default async function CustomersAdminPage({ searchParams }: { searchParam
           <DataTable headers={["Customer", "Type", "Properties", "Balance", "Actions"]}>
             {customers.map((customer) => (
               <tr key={customer.id}>
-                <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/customers/${customer.id}`}>{customer.customerNumber}</Link><br />{customer.name}<br /><span className="text-slate-500">{customer.email} {customer.phone}</span></Td>
+                <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/customers/${customer.id}`}>{customer.customerNumber}</Link><br />{customer.name}<br /><span className="text-slate-500">{customer.email} {customer.phone}</span></Td>
                 <Td>{customer.customerType}</Td>
                 <Td>{customer.properties.length}</Td>
                 <Td>£{Number(customer.accountBalance).toFixed(2)}</Td>
