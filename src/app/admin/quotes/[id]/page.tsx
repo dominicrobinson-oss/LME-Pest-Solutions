@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminForm, DataTable, Td } from "@/components/data-table";
-import { convertQuoteToJob, sendQuote } from "@/app/admin/actions";
+import { convertQuoteToJob, sendQuote, updateQuoteStatus } from "@/app/admin/actions";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
 
@@ -38,10 +38,27 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
               <select className="field" name="priority" defaultValue="Normal"><option>Normal</option><option>High</option><option>Emergency</option></select>
               <button className="btn-primary" type="submit">Convert to job</button>
             </form>
-            <Link className="btn-primary" href={`/customer/quotes/${quote.id}`}>Open customer view</Link>
+            <a className="btn-secondary w-full text-center" href={`/api/reports/quote/${quote.id}`} target="_blank" rel="noopener noreferrer">Download PDF</a>
           </AdminForm>
         </div>
       </div>
+      <section className="mt-5 card p-5">
+        <h3 className="text-xl font-black">Record customer decision</h3>
+        <p className="mt-1 text-sm text-slate-600">Record what the customer told you, by phone or email.</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <form action={updateQuoteStatus}>
+            <input type="hidden" name="id" value={quote.id} />
+            <input type="hidden" name="status" value="ACCEPTED" />
+            <button className="btn-primary" type="submit">Mark accepted</button>
+          </form>
+          <form action={updateQuoteStatus} className="flex items-center gap-2">
+            <input type="hidden" name="id" value={quote.id} />
+            <input type="hidden" name="status" value="DECLINED" />
+            <input className="field" name="reason" placeholder="Reason (optional)" />
+            <button className="btn-secondary bg-slate-700" type="submit">Mark declined</button>
+          </form>
+        </div>
+      </section>
       <section className="mt-5 card p-5">
         <h3 className="text-xl font-black">Line items</h3>
         <DataTable headers={["Description", "Qty", "Unit", "Total"]}>

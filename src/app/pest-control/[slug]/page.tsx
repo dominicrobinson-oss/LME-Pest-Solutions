@@ -102,7 +102,7 @@ export default async function LocationPage({ params }: Props) {
           <section className="card p-6">
           <h3 className="mt-8 text-xl font-black">Available services</h3>
           <div className="mt-4 flex flex-wrap gap-2">
-            {(serviceLinks.length ? serviceLinks : fallbackServices.slice(0, 9)).map((service) => <Link className="status-pill bg-lime-50 text-lime-800" href={`/services/${service.slug}`} key={service.slug}>{service.name}</Link>)}
+            {(serviceLinks.length ? serviceLinks : fallbackServices.slice(0, 9)).map((service) => <Link className="status-pill bg-amber-50 text-amber-800" href={`/services/${service.slug}`} key={service.slug}>{service.name}</Link>)}
           </div>
           </section>
           <section className="card p-6">

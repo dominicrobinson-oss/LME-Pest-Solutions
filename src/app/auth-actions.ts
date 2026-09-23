@@ -35,7 +35,7 @@ async function saveToken(identifier: string, minutes: number) {
 export async function requestPasswordReset(formData: FormData) {
   const email = z.string().email().parse(field(formData, "email").toLowerCase());
   const limit = await checkRateLimit(`password-reset:${email}`, 3, 60 * 60 * 1000);
-  if (!limit.ok) redirect("/customer-login?reset=limited");
+  if (!limit.ok) redirect("/admin?reset=limited");
   const user = await prisma.user.findUnique({ where: { email } });
   if (user?.passwordHash) {
     const token = await saveToken(`password-reset:${email}`, 60);
@@ -43,7 +43,7 @@ export async function requestPasswordReset(formData: FormData) {
     await emailProvider.send({ to: email, ...emailTemplates.passwordReset(url) });
     await audit("PASSWORD_RESET_REQUESTED", "User", { entityId: user.id, metadata: { email } });
   }
-  redirect("/customer-login?reset=requested");
+  redirect("/admin?reset=requested");
 }
 
 export async function resetPassword(formData: FormData) {
@@ -54,34 +54,8 @@ export async function resetPassword(formData: FormData) {
   if (!record || record.identifier !== `password-reset:${email}` || record.expires < new Date()) redirect("/reset-password?error=invalid");
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const user = await prisma.user.update({ where: { email }, data: { passwordHash, failedLoginCount: 0, suspendedUntil: null } });
+  const user = await prisma.user.update({ where: { email }, data: { passwordHash, status: "ACTIVE", failedLoginCount: 0, suspendedUntil: null } });
   await prisma.verificationToken.deleteMany({ where: { identifier: record.identifier } });
   await audit("PASSWORD_RESET_COMPLETED", "User", { entityId: user.id });
-  redirect("/customer-login?reset=complete");
-}
-
-export async function requestEmailVerification(formData: FormData) {
-  const email = z.string().email().parse(field(formData, "email").toLowerCase());
-  const limit = await checkRateLimit(`email-verification:${email}`, 3, 60 * 60 * 1000);
-  if (!limit.ok) redirect("/customer-login?verification=limited");
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (user && !user.emailVerified) {
-    const token = await saveToken(`email-verify:${email}`, 24 * 60);
-    const url = `${env.PUBLIC_SITE_URL}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
-    await emailProvider.send({ to: email, ...emailTemplates.emailVerification(url) });
-    await audit("EMAIL_VERIFICATION_REQUESTED", "User", { entityId: user.id, metadata: { email } });
-  }
-  redirect("/customer-login?verification=requested");
-}
-
-export async function verifyEmail(formData: FormData) {
-  const email = z.string().email().parse(field(formData, "email").toLowerCase());
-  const token = z.string().min(20).parse(field(formData, "token"));
-  const record = await prisma.verificationToken.findUnique({ where: { token } });
-  if (!record || record.identifier !== `email-verify:${email}` || record.expires < new Date()) redirect("/verify-email?error=invalid");
-
-  const user = await prisma.user.update({ where: { email }, data: { emailVerified: new Date() } });
-  await prisma.verificationToken.deleteMany({ where: { identifier: record.identifier } });
-  await audit("EMAIL_VERIFIED", "User", { entityId: user.id });
-  redirect("/customer-login?verification=complete");
+  redirect("/admin?reset=complete");
 }

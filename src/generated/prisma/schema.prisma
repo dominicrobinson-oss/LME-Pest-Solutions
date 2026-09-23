@@ -11,12 +11,9 @@ enum UserRole {
   SUPER_ADMIN
   ADMIN
   OFFICE_MANAGER
-  TECHNICIAN
   ACCOUNTANT
   CUSTOMER
   SALES
-  SUBCONTRACTOR
-  READ_ONLY
 }
 
 enum RecordStatus {
@@ -110,9 +107,6 @@ model User {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   staffProfile      StaffProfile?
-  customer          Customer?
-  accounts          Account[]
-  sessions          Session[]
   leadsAssigned     Lead[]              @relation("LeadAssignedTo")
   auditLogs         AuditLog[]
   notifications     Notification[]
@@ -134,32 +128,6 @@ model NumberSequence {
   updatedAt DateTime @updatedAt
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -171,7 +139,6 @@ model VerificationToken {
 model Customer {
   id                  String               @id @default(cuid())
   customerNumber      String               @unique
-  userId              String?              @unique
   name                String
   companyName         String?
   email               String?
@@ -189,7 +156,6 @@ model Customer {
   deletedAt           DateTime?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
-  user                User?                @relation(fields: [userId], references: [id])
   contacts            CustomerContact[]
   properties          Property[]
   leads               Lead[]
@@ -449,7 +415,7 @@ model JobAssignment {
   id        String   @id @default(cuid())
   jobId     String
   userId    String
-  role      String   @default("Technician")
+  role      String   @default("Staff")
   createdAt DateTime @default(now())
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -552,21 +518,25 @@ model Supplier {
 }
 
 model CommercialContract {
-  id               String         @id @default(cuid())
-  customerId       String
-  contractNumber   String         @unique
-  status           String         @default("DRAFT")
-  startDate        DateTime?
-  endDate          DateTime?
-  renewalDate      DateTime?
-  contractValue    Decimal        @default(0) @db.Decimal(10, 2)
-  serviceFrequency String?
-  includedServices String?
-  excludedServices String?
-  accountManagerId String?
-  createdAt        DateTime       @default(now())
-  customer         Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  sites            ContractSite[]
+  id                    String         @id @default(cuid())
+  customerId            String
+  contractNumber        String         @unique
+  status                String         @default("DRAFT")
+  startDate             DateTime?
+  endDate               DateTime?
+  renewalDate           DateTime?
+  contractValue         Decimal        @default(0) @db.Decimal(10, 2)
+  serviceFrequency      String?
+  includedServices      String?
+  excludedServices      String?
+  accountManagerId      String?
+  visitIntervalWeeks    Int?
+  visitDurationMinutes  Int?
+  invoiceIntervalMonths Int?
+  createdAt             DateTime       @default(now())
+  customer              Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sites                 ContractSite[]
+  invoices              Invoice[]
 }
 
 model ContractSite {
@@ -580,29 +550,31 @@ model ContractSite {
 }
 
 model Invoice {
-  id                String        @id @default(cuid())
-  invoiceNumber     String        @unique
+  id                String              @id @default(cuid())
+  invoiceNumber     String              @unique
   customerId        String?
   propertyId        String?
   quoteId           String?
   jobId             String?
-  issueDate         DateTime      @default(now())
+  contractId        String?
+  issueDate         DateTime            @default(now())
   dueDate           DateTime?
-  subtotal          Decimal       @default(0) @db.Decimal(10, 2)
-  discount          Decimal       @default(0) @db.Decimal(10, 2)
-  vat               Decimal       @default(0) @db.Decimal(10, 2)
-  total             Decimal       @default(0) @db.Decimal(10, 2)
-  amountPaid        Decimal       @default(0) @db.Decimal(10, 2)
-  amountOutstanding Decimal       @default(0) @db.Decimal(10, 2)
+  subtotal          Decimal             @default(0) @db.Decimal(10, 2)
+  discount          Decimal             @default(0) @db.Decimal(10, 2)
+  vat               Decimal             @default(0) @db.Decimal(10, 2)
+  total             Decimal             @default(0) @db.Decimal(10, 2)
+  amountPaid        Decimal             @default(0) @db.Decimal(10, 2)
+  amountOutstanding Decimal             @default(0) @db.Decimal(10, 2)
   paymentTerms      String?
   notes             String?
   bankDetails       String?
-  status            InvoiceStatus @default(DRAFT)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  customer          Customer?     @relation(fields: [customerId], references: [id])
-  quote             Quote?        @relation(fields: [quoteId], references: [id])
-  job               Job?          @relation(fields: [jobId], references: [id])
+  status            InvoiceStatus       @default(DRAFT)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  customer          Customer?           @relation(fields: [customerId], references: [id])
+  quote             Quote?              @relation(fields: [quoteId], references: [id])
+  job               Job?                @relation(fields: [jobId], references: [id])
+  contract          CommercialContract? @relation(fields: [contractId], references: [id])
   items             InvoiceItem[]
   payments          Payment[]
   documents         Document[]
@@ -660,7 +632,6 @@ model Expense {
   paymentMethod String
   jobId         String?
   vehicleId     String?
-  employeeId    String?
   receiptUrl    String?
   reimbursable  Boolean          @default(false)
   approved      Boolean          @default(false)
@@ -680,13 +651,13 @@ model ExpenseCategory {
 }
 
 model StaffProfile {
-  id               String                   @id @default(cuid())
-  userId           String                   @unique
+  id               String    @id @default(cuid())
+  userId           String    @unique
   phone            String?
-  employmentStatus String                   @default("Active")
+  employmentStatus String    @default("Active")
   startDate        DateTime?
-  hourlyRate       Decimal?                 @db.Decimal(10, 2)
-  dayRate          Decimal?                 @db.Decimal(10, 2)
+  hourlyRate       Decimal?  @db.Decimal(10, 2)
+  dayRate          Decimal?  @db.Decimal(10, 2)
   emergencyContact String?
   skills           String[]
   qualifications   String[]
@@ -695,30 +666,9 @@ model StaffProfile {
   vehicleId        String?
   documents        String[]
   notes            String?
-  active           Boolean                  @default(true)
-  user             User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  availability     TechnicianAvailability[]
-  timeEntries      TimeEntry[]
-  vehicle          Vehicle?                 @relation(fields: [vehicleId], references: [id])
-}
-
-model TechnicianAvailability {
-  id       String       @id @default(cuid())
-  staffId  String
-  startsAt DateTime
-  endsAt   DateTime
-  type     String
-  notes    String?
-  staff    StaffProfile @relation(fields: [staffId], references: [id], onDelete: Cascade)
-}
-
-model TimeEntry {
-  id       String       @id @default(cuid())
-  staffId  String
-  startsAt DateTime
-  endsAt   DateTime?
-  notes    String?
-  staff    StaffProfile @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  active           Boolean   @default(true)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle          Vehicle?  @relation(fields: [vehicleId], references: [id])
 }
 
 model Vehicle {
@@ -740,16 +690,15 @@ model Vehicle {
 }
 
 model Equipment {
-  id                   String    @id @default(cuid())
-  equipmentName        String
-  serialNumber         String?   @unique
-  assignedTechnicianId String?
-  purchaseDate         DateTime?
-  inspectionDate       DateTime?
-  nextInspection       DateTime?
-  condition            String?
-  notes                String?
-  active               Boolean   @default(true)
+  id             String    @id @default(cuid())
+  equipmentName  String
+  serialNumber   String?   @unique
+  purchaseDate   DateTime?
+  inspectionDate DateTime?
+  nextInspection DateTime?
+  condition      String?
+  notes          String?
+  active         Boolean   @default(true)
 }
 
 model Document {
@@ -833,10 +782,16 @@ model FAQ {
   updatedAt DateTime      @updatedAt
 }
 
+enum ServiceCategory {
+  PEST_CONTROL
+  HOME_MAINTENANCE
+}
+
 model Service {
-  id                String        @id @default(cuid())
+  id                String          @id @default(cuid())
   name              String
-  slug              String        @unique
+  slug              String          @unique
+  category          ServiceCategory @default(PEST_CONTROL)
   seoTitle          String
   metaDescription   String
   canonicalPath     String?
@@ -851,16 +806,8 @@ model Service {
   treatmentOptions  String[]
   preventionAdvice  String[]
   ctaCopy           String?
-  status            PublishStatus @default(PUBLISHED)
-  updatedAt         DateTime      @updatedAt
-}
-
-model ServiceArea {
-  id     String  @id @default(cuid())
-  name   String
-  slug   String  @unique
-  region String
-  active Boolean @default(true)
+  status            PublishStatus   @default(PUBLISHED)
+  updatedAt         DateTime        @updatedAt
 }
 
 model LocationPage {

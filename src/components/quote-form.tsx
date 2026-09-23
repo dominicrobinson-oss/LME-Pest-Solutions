@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Send } from "lucide-react";
-import { services } from "@/lib/data";
+import { homeMaintenanceServices, services } from "@/lib/data";
 
 const options = {
   propertyType: ["Domestic", "Commercial", "Landlord", "Letting agent", "Other"],
@@ -10,9 +10,12 @@ const options = {
   contact: ["Phone", "Email", "WhatsApp"],
 };
 
-export function QuoteForm({ compact = false }: { compact?: boolean }) {
+type PresetService = { category: "pest" | "maintenance"; name: string };
+
+export function QuoteForm({ compact = false, presetService }: { compact?: boolean; presetService?: PresetService }) {
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [category, setCategory] = useState<"pest" | "maintenance">(presetService?.category ?? "pest");
 
   async function submit(formData: FormData) {
     setState("loading");
@@ -30,13 +33,48 @@ export function QuoteForm({ compact = false }: { compact?: boolean }) {
 
   return (
     <form action={submit} className="grid gap-4" aria-label="Quote enquiry form">
+      <div>
+        <span className="label">What do you need help with?</span>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            className={`rounded-lg border px-3 py-2 text-sm font-black transition ${category === "pest" ? "border-[var(--primary-gold)] bg-amber-50 text-slate-900" : "border-[var(--border)] text-slate-600"}`}
+            onClick={() => setCategory("pest")}
+            type="button"
+          >
+            Pest Control
+          </button>
+          <button
+            className={`rounded-lg border px-3 py-2 text-sm font-black transition ${category === "maintenance" ? "border-[var(--primary-gold)] bg-amber-50 text-slate-900" : "border-[var(--border)] text-slate-600"}`}
+            onClick={() => setCategory("maintenance")}
+            type="button"
+          >
+            Home Maintenance
+          </button>
+        </div>
+      </div>
       <div className={compact ? "grid gap-4" : "grid gap-4 sm:grid-cols-2"}>
         <Field name="name" label="Name" autoComplete="name" />
         <Field name="phone" label="Phone number" autoComplete="tel" />
         <Field name="email" label="Email" type="email" autoComplete="email" />
         <Field name="postcode" label="Postcode" autoComplete="postal-code" />
         <Select name="propertyType" label="Property type" values={options.propertyType} />
-        <Select name="pestProblem" label="Pest problem" values={services.map((service) => service.name)} />
+        {category === "pest" ? (
+          <Select
+            key="pest"
+            name="pestProblem"
+            label="Pest problem"
+            values={services.map((service) => service.name)}
+            defaultValue={presetService?.category === "pest" ? presetService.name : ""}
+          />
+        ) : (
+          <Select
+            key="maintenance"
+            name="pestProblem"
+            label="Maintenance service"
+            values={homeMaintenanceServices.map((service) => service.name)}
+            defaultValue={presetService?.category === "maintenance" ? presetService.name : ""}
+          />
+        )}
         <Select name="urgency" label="Urgency" values={options.urgency} />
         <Select name="preferredContactMethod" label="Preferred contact" values={options.contact} />
       </div>
@@ -65,16 +103,16 @@ function Field({ label, name, type = "text", autoComplete }: { label: string; na
   return (
     <label>
       <span className="label">{label}</span>
-      <input className="field" name={name} type={type} autoComplete={autoComplete} required={name !== "email"} />
+      <input className="field" name={name} type={type} autoComplete={autoComplete} required />
     </label>
   );
 }
 
-function Select({ label, name, values }: { label: string; name: string; values: string[] }) {
+function Select({ label, name, values, defaultValue = "" }: { label: string; name: string; values: string[]; defaultValue?: string }) {
   return (
     <label>
       <span className="label">{label}</span>
-      <select className="field" name={name} required defaultValue="">
+      <select className="field" name={name} required defaultValue={defaultValue}>
         <option value="" disabled>Choose...</option>
         {values.map((value) => <option value={value} key={value}>{value}</option>)}
       </select>

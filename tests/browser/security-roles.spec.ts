@@ -14,40 +14,29 @@ test.afterAll(async () => {
   await prisma.$disconnect();
 });
 
-async function login(page: Page, email: string) {
+async function attemptLogin(page: Page, email: string, password: string) {
   await prisma.businessSetting.deleteMany({ where: { key: `rate-limit:login:${email.toLowerCase()}` } });
-  await page.goto("/customer-login");
+  await page.goto("/admin");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("ChangeMe123!");
+  await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
-  await expect(page).toHaveURL(/\/customer(?:[/?#]|$)/);
 }
 
-test("admin can access dashboard and operational modules", async ({ page }) => {
-  await login(page, "admin@lme.local");
-  await page.goto("/admin");
+test("admin can log in at /admin and access operational modules", async ({ page }) => {
+  await attemptLogin(page, "admin@lme.local", "ChangeMe123!");
+  await expect(page).toHaveURL(/\/admin(?:[/?#]|$)/);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await page.goto("/admin/calendar");
-  await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+  await page.goto("/admin/jobs");
+  await expect(page.getByRole("heading", { name: "Jobs and Scheduling" })).toBeVisible();
 });
 
-test("customer is isolated from admin and technician areas", async ({ page }) => {
-  await login(page, "customer@lme.local");
-  await page.goto("/customer");
-  await expect(page.getByRole("heading", { name: /Customer Portal|Dashboard/i })).toBeVisible();
-
-  await page.goto("/admin");
-  await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
-
-  await page.goto("/technician");
-  await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+test("customer staff records have no login credentials", async ({ page }) => {
+  await attemptLogin(page, "customer@lme.local", "ChangeMe123!");
+  await expect(page.getByRole("heading", { name: "LME Admin Login" })).toBeVisible();
 });
 
-test("technician can access technician work but not finance", async ({ page }) => {
-  await login(page, "technician@lme.local");
-  await page.goto("/technician");
-  await expect(page.getByRole("heading", { name: /Today/i })).toBeVisible();
-
+test("unauthenticated visits to admin subpages redirect back to the /admin login", async ({ page }) => {
   await page.goto("/admin/finance");
-  await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\?callbackUrl=%2Fadmin%2Ffinance/);
+  await expect(page.getByRole("heading", { name: "LME Admin Login" })).toBeVisible();
 });

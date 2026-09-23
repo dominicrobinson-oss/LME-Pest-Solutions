@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
 import { brandedPdf } from "@/lib/pdf";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  await requireAnyRole(adminRoles);
   const { id } = await params;
   const record = await prisma.treatmentRecord.findUnique({ where: { id }, include: { job: { include: { customer: true, property: true } }, materials: true } });
   if (!record) notFound();

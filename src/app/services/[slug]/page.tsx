@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QuoteForm } from "@/components/quote-form";
 import { PublicShell } from "@/components/public-shell";
-import { areas, services as fallbackServices } from "@/lib/data";
+import { areas, services as fallbackServices, specialistServiceContent } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import { JsonLd, breadcrumbSchema, canonicalPath, publicMetadata, serviceSchema } from "@/lib/seo";
 
@@ -16,29 +16,30 @@ export function generateStaticParams() {
 async function getService(slug: string) {
   try {
     const service = await prisma.service.findUnique({ where: { slug } });
-    if (service?.status === "PUBLISHED") return service;
+    if (service?.status === "PUBLISHED" && service.category === "PEST_CONTROL") return service;
   } catch {
     // Fall back to static public content when a database is not available during preview builds.
   }
   const fallback = fallbackServices.find((item) => item.slug === slug);
-  return fallback
-    ? {
-        ...fallback,
-        seoTitle: `${fallback.name} Manchester`,
-        metaDescription: `Request ${fallback.name.toLowerCase()} across Manchester and North West England from LME Pest Solutions.`,
-        canonicalPath: `/services/${fallback.slug}`,
-        ogTitle: null,
-        ogDescription: null,
-        body: null,
-        signs: ["Sightings or activity", "Droppings, damage or nesting evidence", "Unusual smells, noise or bite marks"],
-        risks: ["Property damage", "Health and hygiene issues", "Spread to other rooms or neighbouring areas"],
-        treatment: "Inspection, treatment recommendations and targeted follow-up where needed.",
-        inspectionProcess: "A technician checks activity, access points, property risks and customer safety requirements.",
-        treatmentOptions: ["Inspection and advice", "Targeted treatment", "Proofing and prevention", "Follow-up support"],
-        preventionAdvice: ["Remove food sources", "Seal access points", "Monitor activity", "Keep records for commercial sites"],
-        ctaCopy: null,
-      }
-    : null;
+  if (!fallback) return null;
+  const specialist = specialistServiceContent[fallback.slug];
+  return {
+    ...fallback,
+    intro: specialist?.intro || fallback.intro,
+    seoTitle: `${fallback.name} Manchester`,
+    metaDescription: `Request ${fallback.name.toLowerCase()} across Manchester and North West England from LME Pest Solutions.`,
+    canonicalPath: `/services/${fallback.slug}`,
+    ogTitle: null,
+    ogDescription: null,
+    body: null,
+    signs: specialist?.signs || ["Sightings or activity", "Droppings, damage or nesting evidence", "Unusual smells, noise or bite marks"],
+    risks: specialist?.risks || ["Property damage", "Health and hygiene issues", "Spread to other rooms or neighbouring areas"],
+    treatment: specialist?.treatment || "Inspection, treatment recommendations and targeted follow-up where needed.",
+    inspectionProcess: specialist?.inspectionProcess || "A technician checks activity, access points, property risks and customer safety requirements.",
+    treatmentOptions: specialist?.treatmentOptions || ["Inspection and advice", "Targeted treatment", "Proofing and prevention", "Follow-up support"],
+    preventionAdvice: specialist?.preventionAdvice || ["Remove food sources", "Seal access points", "Monitor activity", "Keep records for commercial sites"],
+    ctaCopy: null,
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -100,14 +101,14 @@ export default async function ServicePage({ params }: Props) {
           <section className="card p-6">
             <h2 className="text-2xl font-black">Relevant locations</h2>
             <div className="mt-4 flex flex-wrap gap-2">
-              {areas.slice(0, 8).map((area) => <Link className="status-pill bg-lime-50 text-lime-800" href={`/pest-control/${area.slug}`} key={area.slug}>{area.name}</Link>)}
+              {areas.slice(0, 8).map((area) => <Link className="status-pill bg-amber-50 text-amber-800" href={`/pest-control/${area.slug}`} key={area.slug}>{area.name}</Link>)}
             </div>
           </section>
         </article>
         <aside className="card h-fit p-5">
           <h2 className="text-2xl font-black">Request a quote</h2>
           <p className="mb-5 mt-1 text-sm text-slate-600">{service.ctaCopy || "This creates a lead record for follow-up."}</p>
-          <QuoteForm compact />
+          <QuoteForm compact presetService={{ category: "pest", name: service.name }} />
         </aside>
       </div>
       <JsonLd data={serviceSchema({ name: service.name, description: service.metaDescription, path, areas: areas.map((area) => area.name) })} />

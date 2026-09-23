@@ -26,5 +26,5 @@
 - Bank details are verified against the real business bank account.
 - `EMAIL_PROVIDER=smtp`, Titan/GoDaddy SMTP credentials and `EMAIL_FROM` are verified by sending password reset and email verification messages.
 - `STORAGE_PROVIDER=s3` works with Supabase Storage S3 credentials, a test PDF upload and protected document download.
-- Admin/customer/technician accounts use strong passwords.
+- Admin/customer accounts use strong passwords.
 - Real legal details, bank details and verified claims are stored in the host secret manager/admin settings, not committed to Git.

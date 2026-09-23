@@ -53,9 +53,9 @@ export default async function FinanceAdminPage() {
             <DataTable headers={["Invoice", "Customer", "Status", "Total", "Outstanding", "Payment"]}>
               {invoices.map((invoice) => (
                 <tr key={invoice.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/finance/invoices/${invoice.id}`}>{invoice.invoiceNumber}</Link><br /><span className="text-slate-500">{invoice.issueDate.toLocaleDateString("en-GB")}</span></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/finance/invoices/${invoice.id}`}>{invoice.invoiceNumber}</Link><br /><span className="text-slate-500">{invoice.issueDate.toLocaleDateString("en-GB")}</span></Td>
                   <Td>{invoice.customer?.name || "No customer"}</Td>
-                  <Td><span className="status-pill bg-lime-50 text-lime-800">{invoice.status}</span></Td>
+                  <Td><span className="status-pill bg-amber-50 text-amber-800">{invoice.status}</span></Td>
                   <Td>£{Number(invoice.total).toFixed(2)}</Td>
                   <Td>£{Number(invoice.amountOutstanding).toFixed(2)}</Td>
                   <Td>
@@ -78,7 +78,7 @@ export default async function FinanceAdminPage() {
             <DataTable headers={["Reference", "Customer", "Method", "Amount", "Date"]}>
               {payments.map((payment) => (
                 <tr key={payment.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/finance/payments/${payment.id}`}>{payment.paymentReference}</Link></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/finance/payments/${payment.id}`}>{payment.paymentReference}</Link></Td>
                   <Td>{payment.customer?.name || "-"}</Td>
                   <Td>{payment.method} · {payment.status}</Td>
                   <Td>£{Number(payment.amount).toFixed(2)}</Td>

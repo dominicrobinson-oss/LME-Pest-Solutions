@@ -5,8 +5,8 @@
   --foreground: #0b1723;
   --background-dark: #07131d;
   --background-darker: #04101a;
-  --primary-green: #62b51f;
-  --primary-green-hover: #4f9917;
+  --primary-gold: #c8a24a;
+  --primary-gold-hover: #ad8836;
   --muted-text: #64748b;
   --surface: #ffffff;
   --surface-soft: #f7f9fa;
@@ -34,7 +34,7 @@ html {
 }
 
 ::selection {
-  background: var(--primary-green);
+  background: var(--primary-gold);
   color: white;
 }
 
@@ -43,7 +43,7 @@ button,
 input,
 select,
 textarea {
-  outline-color: var(--primary-green);
+  outline-color: var(--primary-gold);
 }
 
 .container-lme {
@@ -58,16 +58,16 @@ textarea {
   justify-content: center;
   gap: 0.5rem;
   border-radius: 8px;
-  background: var(--primary-green);
+  background: var(--primary-gold);
   padding: 0.75rem 1rem;
   font-weight: 800;
   color: #ffffff;
-  box-shadow: 0 14px 30px rgba(98, 181, 31, 0.28);
+  box-shadow: 0 14px 30px rgba(200, 162, 74, 0.28);
   transition: background 160ms ease, transform 160ms ease;
 }
 
 .btn-primary:hover {
-  background: var(--primary-green-hover);
+  background: var(--primary-gold-hover);
   transform: translateY(-1px);
 }
 
@@ -91,8 +91,16 @@ textarea {
   box-shadow: 0 18px 50px rgba(7, 19, 29, 0.08);
 }
 
+/* Grid items default to a content-based automatic minimum width, so a wide descendant
+   (e.g. DataTable's min-w-[760px] table, which scrolls internally via overflow-x-auto)
+   can otherwise force the whole grid track wider than the viewport on narrow screens. */
+.grid > * {
+  min-width: 0;
+}
+
 .field {
   width: 100%;
+  min-width: 0;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: white;

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
 import { brandedPdf, moneyLine } from "@/lib/pdf";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  await requireAnyRole(adminRoles);
   const { id } = await params;
   const quote = await prisma.quote.findUnique({ where: { id }, include: { customer: true, property: true, items: true } });
   if (!quote) notFound();

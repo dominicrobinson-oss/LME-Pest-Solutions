@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { LeadStatus } from "@/generated/prisma/client";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { audit } from "@/lib/audit";
 import { prisma } from "@/lib/db";
+import { matchesEnum } from "@/lib/utils";
 
 export async function GET(request: Request) {
   const user = await requireAnyRole(adminRoles);
@@ -11,7 +13,7 @@ export async function GET(request: Request) {
   const leads = await prisma.lead.findMany({
     where: {
       ...(q ? { OR: [{ customerName: { contains: q, mode: "insensitive" } }, { phone: { contains: q } }, { email: { contains: q, mode: "insensitive" } }, { postcode: { contains: q, mode: "insensitive" } }, { leadNumber: { contains: q, mode: "insensitive" } }] } : {}),
-      ...(status ? { status: status as never } : {}),
+      ...(matchesEnum(status, LeadStatus) ? { status: matchesEnum(status, LeadStatus) } : {}),
     },
     orderBy: { createdAt: "desc" },
   });

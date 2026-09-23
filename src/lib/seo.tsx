@@ -70,7 +70,7 @@ export function localBusinessSchema(path = "/") {
     telephone: business.phone,
     email: business.email,
     image: absoluteUrl(defaultOgImage),
-    logo: absoluteUrl("/brand/lme-supplied-logo-badge.png"),
+    logo: absoluteUrl("/brand/lme-gold-badge.png"),
     areaServed: [
       { "@type": "City", name: business.primaryArea },
       { "@type": "AdministrativeArea", name: business.coverage },

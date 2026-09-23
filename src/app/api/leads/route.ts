@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       customerName: data.name,
       email: data.email || null,
       phone: data.phone,
-      postcode: data.postcode.toUpperCase(),
+      postcode: data.postcode,
       pestType: data.pestProblem,
       propertyType: data.propertyType,
       urgency: data.urgency,
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       leadNumber,
       source: "Website",
       pestType: data.pestProblem,
-      postcode: data.postcode.toUpperCase(),
+      postcode: data.postcode,
     },
   });
 

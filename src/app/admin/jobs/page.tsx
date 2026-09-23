@@ -2,19 +2,21 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminForm, DataTable, Td } from "@/components/data-table";
 import { createJob } from "@/app/admin/actions";
+import { JobStatus } from "@/generated/prisma/client";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
+import { matchesEnum } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobsAdminPage({ searchParams }: { searchParams?: Promise<{ status?: string; technician?: string }> }) {
+export default async function JobsAdminPage({ searchParams }: { searchParams?: Promise<{ status?: string; staff?: string }> }) {
   const user = await requireAnyRole(adminRoles);
   const params = (await searchParams) || {};
   const [jobs, customers] = await Promise.all([
     prisma.job.findMany({
       where: {
-        ...(params.status ? { status: params.status as never } : {}),
-        ...(params.technician ? { assignments: { some: { userId: params.technician } } } : {}),
+        ...(matchesEnum(params.status, JobStatus) ? { status: matchesEnum(params.status, JobStatus) } : {}),
+        ...(params.staff ? { assignments: { some: { userId: params.staff } } } : {}),
       },
       include: { customer: true, property: true, assignments: { include: { user: true } } },
       orderBy: [{ scheduledStart: "asc" }, { createdAt: "desc" }],
@@ -39,10 +41,10 @@ export default async function JobsAdminPage({ searchParams }: { searchParams?: P
           <DataTable headers={["Job", "Customer", "Schedule", "Status", "Assigned", "Actions"]}>
             {jobs.map((job) => (
               <tr key={job.id}>
-                <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/jobs/${job.id}`}>{job.jobNumber}</Link><br />{job.jobType}</Td>
+                <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/jobs/${job.id}`}>{job.jobNumber}</Link><br />{job.jobType}</Td>
                 <Td>{job.customer?.name || "No customer"}<br /><span className="text-slate-500">{job.property?.postcode}</span></Td>
                 <Td>{job.scheduledStart?.toLocaleString("en-GB") || "Unscheduled"}</Td>
-                <Td><span className="status-pill bg-lime-50 text-lime-800">{job.status}</span></Td>
+                <Td><span className="status-pill bg-amber-50 text-amber-800">{job.status}</span></Td>
                 <Td>{job.assignments.map((assignment) => assignment.user.name || assignment.user.email).join(", ") || "Unassigned"}</Td>
                 <Td><Link className="btn-primary" href={`/admin/jobs/${job.id}`}>Open</Link></Td>
               </tr>

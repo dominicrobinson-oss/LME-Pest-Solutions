@@ -34,7 +34,7 @@ export default async function CommunicationsAdminPage() {
                 <Td>{item.type}</Td>
                 <Td>{item.subject || "No subject"}<br /><span className="text-slate-500">{item.body}</span></Td>
                 <Td>{item.customer?.name || item.lead?.leadNumber || item.job?.jobNumber || item.recipient || "-"}</Td>
-                <Td><span className="status-pill bg-lime-50 text-lime-800">{item.status}</span></Td>
+                <Td><span className="status-pill bg-amber-50 text-amber-800">{item.status}</span></Td>
               </tr>
             ))}
           </DataTable>

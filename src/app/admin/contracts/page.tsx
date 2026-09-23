@@ -33,9 +33,9 @@ export default async function ContractsAdminPage() {
           <DataTable headers={["Contract", "Customer", "Status", "Frequency", "Renewal", "Sites"]}>
             {contracts.map((contract) => (
               <tr key={contract.id}>
-                <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/contracts/${contract.id}`}>{contract.contractNumber}</Link></Td>
+                <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/contracts/${contract.id}`}>{contract.contractNumber}</Link></Td>
                 <Td>{contract.customer.name}</Td>
-                <Td><span className="status-pill bg-lime-50 text-lime-800">{contract.status}</span></Td>
+                <Td><span className="status-pill bg-amber-50 text-amber-800">{contract.status}</span></Td>
                 <Td>{contract.serviceFrequency || "-"}</Td>
                 <Td>{contract.renewalDate?.toLocaleDateString("en-GB") || "-"}</Td>
                 <Td>{contract.sites.length}</Td>
@@ -53,6 +53,11 @@ export default async function ContractsAdminPage() {
             <input className="field" name="endDate" type="date" />
             <input className="field" name="renewalDate" type="date" />
             <select className="field" name="accountManagerId" defaultValue=""><option value="">Account manager</option>{managers.map((manager) => <option value={manager.id} key={manager.id}>{manager.name || manager.email}</option>)}</select>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="text-sm"><span className="label">Visit every (weeks)</span><input className="field" name="visitIntervalWeeks" type="number" min="1" max="52" placeholder="4" /></label>
+              <label className="text-sm"><span className="label">Visit duration (mins)</span><input className="field" name="visitDurationMinutes" type="number" min="15" max="480" step="15" placeholder="60" /></label>
+              <label className="text-sm"><span className="label">Invoice every (months)</span><input className="field" name="invoiceIntervalMonths" type="number" min="1" max="12" placeholder="1" /></label>
+            </div>
             <textarea className="field" name="includedServices" placeholder="Included services" />
             <textarea className="field" name="excludedServices" placeholder="Excluded services" />
             <input className="field" name="siteName" placeholder="Initial site name" />

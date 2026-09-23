@@ -1,8 +1,5 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+export function matchesEnum<T extends string>(value: string | undefined, enumObject: Record<string, T>): T | undefined {
+  return value && (Object.values(enumObject) as string[]).includes(value) ? (value as T) : undefined;
 }
 
 export function slugify(value: string) {
@@ -11,10 +8,6 @@ export function slugify(value: string) {
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-}
-
-export function currency(value: number) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
 }
 
 export function businessPhoneHref(phone = "07301 113 276") {

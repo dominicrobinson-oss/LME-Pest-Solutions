@@ -2,8 +2,10 @@ import Link from "next/link";
 import { AdminShell, MetricCard } from "@/components/admin-shell";
 import { DataTable, Td } from "@/components/data-table";
 import { assignLead, convertLeadToCustomer, updateLeadStatus } from "@/app/admin/actions";
+import { LeadStatus } from "@/generated/prisma/client";
 import { adminRoles, requireAnyRole } from "@/lib/authz";
 import { prisma } from "@/lib/db";
+import { matchesEnum } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +16,11 @@ export default async function LeadsAdminPage({ searchParams }: { searchParams?: 
   const status = params.status?.trim();
   const where = {
     ...(q ? { OR: [{ customerName: { contains: q, mode: "insensitive" as const } }, { phone: { contains: q } }, { email: { contains: q, mode: "insensitive" as const } }, { postcode: { contains: q, mode: "insensitive" as const } }, { leadNumber: { contains: q, mode: "insensitive" as const } }] } : {}),
-    ...(status ? { status: status as never } : {}),
+    ...(matchesEnum(status, LeadStatus) ? { status: matchesEnum(status, LeadStatus) } : {}),
   };
   const [leads, staff, counts] = await Promise.all([
     prisma.lead.findMany({ where, orderBy: { createdAt: "desc" }, take: 50, include: { assignedStaff: true } }),
-    prisma.user.findMany({ where: { role: { in: ["SUPER_ADMIN", "ADMIN", "OFFICE_MANAGER", "TECHNICIAN", "SALES"] }, status: "ACTIVE" }, orderBy: { name: "asc" } }),
+    prisma.user.findMany({ where: { role: { in: ["SUPER_ADMIN", "ADMIN", "OFFICE_MANAGER", "SALES"] }, status: "ACTIVE" }, orderBy: { name: "asc" } }),
     prisma.lead.groupBy({ by: ["status"], _count: true }),
   ]);
   return (
@@ -40,10 +42,10 @@ export default async function LeadsAdminPage({ searchParams }: { searchParams?: 
       <DataTable headers={["Lead", "Customer", "Problem", "Status", "Assign", "Actions"]}>
         {leads.map((lead) => (
           <tr key={lead.id}>
-            <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/leads/${lead.id}`}>{lead.leadNumber}</Link><br /><span className="text-slate-500">{lead.createdAt.toLocaleDateString("en-GB")}</span></Td>
+            <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/leads/${lead.id}`}>{lead.leadNumber}</Link><br /><span className="text-slate-500">{lead.createdAt.toLocaleDateString("en-GB")}</span></Td>
             <Td>{lead.customerName}<br /><span className="text-slate-500">{lead.phone} {lead.email}</span></Td>
             <Td>{lead.pestType}<br /><span className="text-slate-500">{lead.postcode} · {lead.urgency}</span></Td>
-            <Td><span className="status-pill bg-lime-50 text-lime-800">{lead.status}</span></Td>
+            <Td><span className="status-pill bg-amber-50 text-amber-800">{lead.status}</span></Td>
             <Td>
               <form action={assignLead} className="flex gap-2">
                 <input type="hidden" name="id" value={lead.id} />

@@ -17,12 +17,11 @@ export const dynamic = "force-dynamic";
 async function getServices() {
   try {
     const cmsServices = await prisma.service.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: "PUBLISHED", category: "PEST_CONTROL" },
       orderBy: { name: "asc" },
       select: { name: true, slug: true, intro: true },
     });
-    const servicesBySlug = new Map([...fallbackServices, ...cmsServices].map((service) => [service.slug, service]));
-    return [...servicesBySlug.values()];
+    return cmsServices.length ? cmsServices : fallbackServices;
   } catch {
     return fallbackServices;
   }

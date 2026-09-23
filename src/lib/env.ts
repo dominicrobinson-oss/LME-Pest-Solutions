@@ -34,8 +34,6 @@ const envSchema = z.object({
   BUSINESS_VAT_NUMBER: optionalString,
   BUSINESS_INSURANCE_SUMMARY: optionalString,
   BUSINESS_ACCREDITATIONS: optionalString,
-  INSTAGRAM_URL: optionalUrl,
-  GOOGLE_REVIEWS_URL: optionalUrl,
   STORAGE_PROVIDER: z.enum(["local", "s3"]).default("local"),
   S3_ENDPOINT: optionalUrl,
   S3_REGION: z.string().default("auto"),

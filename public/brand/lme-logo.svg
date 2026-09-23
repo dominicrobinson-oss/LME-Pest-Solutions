@@ -3,7 +3,7 @@
   <desc id="desc">LME Pest Solutions brand mark with shield</desc>
   <rect width="520" height="160" rx="18" fill="#04101A"/>
   <path d="M44 34h22v66h42v19H44V34Zm82 0h23l28 48 28-48h23v85h-22V70l-22 37h-14l-22-37v49h-22V34Zm126 0h74v19h-51v14h45v18h-45v15h53v19h-76V34Z" fill="#fff"/>
-  <path d="m355 31 51-17 51 17v45c0 36-23 58-51 70-28-12-51-34-51-70V31Z" fill="#07131D" stroke="#62B51F" stroke-width="6"/>
-  <path d="m407 42 9 24 25 2-19 16 6 25-21-14-21 14 6-25-19-16 25-2 9-24Z" fill="#62B51F"/>
-  <text x="45" y="144" fill="#62B51F" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="900" letter-spacing="3">PEST SOLUTIONS</text>
+  <path d="m355 31 51-17 51 17v45c0 36-23 58-51 70-28-12-51-34-51-70V31Z" fill="#07131D" stroke="#C8A24A" stroke-width="6"/>
+  <path d="m407 42 9 24 25 2-19 16 6 25-21-14-21 14 6-25-19-16 25-2 9-24Z" fill="#C8A24A"/>
+  <text x="45" y="144" fill="#C8A24A" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="900" letter-spacing="3">PEST SOLUTIONS</text>
 </svg>

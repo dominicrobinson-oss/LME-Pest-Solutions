@@ -18,6 +18,20 @@ describe("quote enquiry validation", () => {
     expect(parsed.success).toBe(true);
   });
 
+  it("rejects a missing email", () => {
+    const parsed = quoteEnquirySchema.safeParse({
+      name: "Jane Customer",
+      phone: "07301 113 276",
+      postcode: "M1 1AA",
+      propertyType: "Domestic",
+      pestProblem: "Rat Control",
+      urgency: "Today",
+      preferredContactMethod: "Phone",
+      consent: "on",
+    });
+    expect(parsed.success).toBe(false);
+  });
+
   it("rejects missing consent", () => {
     const parsed = quoteEnquirySchema.safeParse({
       name: "Jane Customer",

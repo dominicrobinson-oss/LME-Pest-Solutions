@@ -35,7 +35,7 @@ export default async function ResourcesAdminPage() {
             <DataTable headers={["Name", "Role", "Phone", "Vehicle", "Skills"]}>
               {staff.map((member) => (
                 <tr key={member.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/resources/staff/${member.id}`}>{member.user.name || member.user.email}</Link></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/resources/staff/${member.id}`}>{member.user.name || member.user.email}</Link></Td>
                   <Td>{member.user.role}</Td>
                   <Td>{member.phone || "-"}</Td>
                   <Td>{member.vehicle?.registration || "-"}</Td>
@@ -50,7 +50,7 @@ export default async function ResourcesAdminPage() {
             <DataTable headers={["Registration", "Vehicle", "Mileage", "MOT", "Service"]}>
               {vehicles.map((vehicle) => (
                 <tr key={vehicle.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/resources/vehicles/${vehicle.id}`}>{vehicle.registration}</Link></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/resources/vehicles/${vehicle.id}`}>{vehicle.registration}</Link></Td>
                   <Td>{vehicle.make} {vehicle.model}</Td>
                   <Td>{vehicle.mileage || "-"}</Td>
                   <Td>{vehicle.motDate?.toLocaleDateString("en-GB") || "-"}</Td>
@@ -65,7 +65,7 @@ export default async function ResourcesAdminPage() {
             <DataTable headers={["Product", "Category", "Supplier", "Stock", "Reorder"]}>
               {products.map((product) => (
                 <tr key={product.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/resources/products/${product.id}`}>{product.productName}</Link><br /><span className="text-slate-500">{product.productCode || "No code"}</span></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/resources/products/${product.id}`}>{product.productName}</Link><br /><span className="text-slate-500">{product.productCode || "No code"}</span></Td>
                   <Td>{product.category}</Td>
                   <Td>{product.supplier?.name || "-"}</Td>
                   <Td>{Number(product.currentStock).toFixed(2)} {product.unit}</Td>
@@ -80,7 +80,7 @@ export default async function ResourcesAdminPage() {
             <DataTable headers={["Name", "Serial", "Condition", "Next inspection"]}>
               {equipment.map((item) => (
                 <tr key={item.id}>
-                  <Td><Link className="font-black text-[var(--primary-green)]" href={`/admin/resources/equipment/${item.id}`}>{item.equipmentName}</Link></Td>
+                  <Td><Link className="font-black text-[var(--primary-gold)]" href={`/admin/resources/equipment/${item.id}`}>{item.equipmentName}</Link></Td>
                   <Td>{item.serialNumber || "-"}</Td>
                   <Td>{item.condition || "-"}</Td>
                   <Td>{item.nextInspection?.toLocaleDateString("en-GB") || "-"}</Td>

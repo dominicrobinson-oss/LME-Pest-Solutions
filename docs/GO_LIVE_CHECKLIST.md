@@ -9,14 +9,11 @@
 - Reviews, stats, insurance and accreditation claims are verified or hidden.
 - Public quote form creates a lead.
 - Password reset and email verification emails are delivered.
-- Customer can view an invoice and request a bank-transfer reference.
-- Admin can mark a pending bank transfer as received.
+- Admin can record a bank-transfer reference against an invoice and mark a pending bank transfer as received.
 - Staff/admin 2FA can be enabled and an emailed security code can be used to log in.
-- Admin drag-assisted scheduling and bulk contract visit/invoice generation have been smoke-tested.
-- Technician can complete a job, draw signatures and upload photos.
-- Technician treatment form draft autosave has been checked on a mobile-sized viewport.
-- Customer can open only their own protected documents.
-- Technician cannot open unassigned jobs or finance data.
+- Bulk contract visit/invoice generation has been smoke-tested.
+- Admin can complete a job, draw signatures and upload photos.
+- Document downloads are restricted to admin/staff (there is no customer self-service portal).
 - `npm audit` findings are reviewed and accepted or remediated.
 - Final commands pass: validate, migrate, typecheck, lint, tests, integration tests, E2E guard, browser E2E, build and audit.
 - Backup/restore drill has been tested in a non-production environment.

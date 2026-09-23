@@ -39,7 +39,7 @@ export default function ContactPage() {
 function ContactCard({ icon: Icon, title, text, href }: { icon: typeof Phone; title: string; text: string; href?: string }) {
   const content = (
     <div className="card flex items-center gap-4 p-5">
-      <span className="grid size-12 place-items-center rounded-lg bg-lime-50 text-[var(--primary-green)]"><Icon /></span>
+      <span className="grid size-12 place-items-center rounded-lg bg-amber-50 text-[var(--primary-gold)]"><Icon /></span>
       <div>
         <h2 className="font-black">{title}</h2>
         <p className="text-sm text-slate-600">{text}</p>

@@ -14,11 +14,11 @@ export function AdminShell({ title, children, userName }: { title: string; child
           ))}
         </nav>
       </aside>
-      <main className="lg:pl-64">
+      <main className="overflow-x-hidden lg:pl-64">
         <header className="border-b border-slate-200 bg-white px-5 py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--primary-green)]">Business management</p>
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-[var(--primary-gold)]">Business management</p>
               <h2 className="text-3xl font-black">{title}</h2>
               {userName ? <p className="mt-1 text-sm text-slate-500">Signed in as {userName}</p> : null}
             </div>
@@ -44,12 +44,34 @@ export function MetricCard({ label, value, note }: { label: string; value: strin
   );
 }
 
-export function DataPanel({ title, items }: { title: string; items: string[] }) {
+export type DataPanelItem = string | { label: string; value?: string; href?: string };
+
+export function DataPanel({ title, items }: { title: string; items: DataPanelItem[] }) {
   return (
     <section className="card p-5">
       <h3 className="text-xl font-black">{title}</h3>
       <div className="mt-4 grid gap-3">
-        {items.map((item) => <div className="rounded-lg bg-slate-50 p-3 text-sm font-bold" key={item}>{item}</div>)}
+        {items.map((item) => {
+          const entry = typeof item === "string" ? { label: item } : item;
+          const content = (
+            <span className="flex items-center justify-between gap-3">
+              <span>{entry.label}</span>
+              {entry.value !== undefined ? <span className="text-slate-500">{entry.value}</span> : null}
+            </span>
+          );
+          if (entry.href) {
+            return (
+              <Link className="rounded-lg bg-slate-50 p-3 text-sm font-bold hover:bg-slate-100" href={entry.href} key={entry.label}>
+                {content}
+              </Link>
+            );
+          }
+          return (
+            <div className="rounded-lg bg-slate-50 p-3 text-sm font-bold" key={entry.label}>
+              {content}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
